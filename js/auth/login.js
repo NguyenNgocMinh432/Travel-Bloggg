@@ -48,7 +48,7 @@ class Login extends BaseComponent {
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="email"
-                                                placeholder="Your email">
+                                                placeholder="Example@gmail.com">
                                             <div class="invalid-feedback"></div>
                                         </div>
                                         <div class="mb-3">
@@ -106,14 +106,21 @@ class Login extends BaseComponent {
             if (isFlash) {
                 const response = await firebase.firestore().collection("user1").where("email", "==", email).get();
                 console.log(response);
-                 if (response.empty) {
+                var admin = await firebase.firestore().collection("user1").get();
+                admin.docs.forEach((doc) => {
+             if (doc.data().email === "nnminh432@gmail.com") {
+                    alert("thành công rồi");
+                    router.navigate("/signup");
+               } 
+                })
+             if (response.empty) {
                     alert("Email or password is not correct");
                     alert("Mời ban nhập tài khoản và mật khẩu");
                 } else {
                     const currentUser = getDataFromDocs(response.docs)[0];
                     console.log(currentUser);
                     // lưu người dùng hiện tại
-                    saveCurrentUser(currentUser);
+                    saveCurrentUser(currentUser);   
                     // chuyển sang trang index
                     router.navigate("/home");
                 }

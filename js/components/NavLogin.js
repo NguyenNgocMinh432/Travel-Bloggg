@@ -1,14 +1,28 @@
-
 import { BaseComponent } from "../BaseComponent.js";
-
-class NavigationBar extends BaseComponent {
+import { getDataFromDoc } from "../utils.js";
+class NavLogin extends BaseComponent {
     constructor() {
         super();
+
+        this.state = {
+            name: ''
+        }
+
+        this.props = {
+            "id": '',
+            "owner": '',
+            
+            
+        };
     }
 
+    static get observedAttributes() {
+        return ['id','owner'];
+    }
     render() {
         const template = /*html*/ `
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        
         <link rel="stylesheet" href="../css/styles_home.css">
             <nav class="nav">
         <div class="nav-menu flex-row">
@@ -45,9 +59,7 @@ class NavigationBar extends BaseComponent {
                 </ul>
             </div>
             <div class="social text-gray">
-            <a href="./login.html">Đăng nhập</a>
-            <a>|</a>
-            <a href="./sign-up.html">Đăng ký</a>
+            <div class="owner">${this.state.name}</div>
             </div>
 
             <!-- Nav mobile ----->
@@ -79,34 +91,26 @@ class NavigationBar extends BaseComponent {
                     </li>
                 </ul>
                 <div class="social__mobile text-gray">
-                    <a href="./login.html">Đăng nhập</a>
-                    <a>|</a>   
-                    <a href="./sign-up.html">Đăng ký</a>
+                    
+                    <a href="./login.html"></a>
+                    <a href="./sign-up.html"></a>
                 </div>
             </div>
         </div>
 
     </nav>
     `;
-
-        this._shadowRoot.innerHTML = template;
-        let openNav = this._shadowRoot.getElementById("openNav");
-        let closeNav = this._shadowRoot.getElementById("closeNav");
-        let overlay = this._shadowRoot.getElementById("overlay");
-        let navMobile = this._shadowRoot.getElementById("navMobile");
-
-        openNav.onclick = function () {
-            navMobile.style.transform = "translateX(0%)";
-            navMobile.style.opacity = "1";
-            overlay.style.display = "block";
-        }
-
-        closeNav.onclick = function () {
-            navMobile.style.transform = "translateX(100%)";
-            navMobile.style.opacity = "0";
-            overlay.style.display = "none";
-        }
+    this._shadowRoot.innerHTML = template;
+      
     }
+     async componentDidUpdate(){
+        if (this.props.id) {
+            let response = await firebase.firestore().collection('user1') .doc(this.props.id).get();
+            let owner = getDataFromDoc(response);
+            this.setState({
+                name: owner.name,
+            });
+    }
+  }
 }
-
-window.customElements.define('navigation-bar', NavigationBar);
+window.customElements.define('nav-login', NavLogin);

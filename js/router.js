@@ -14,7 +14,9 @@ window.router.on("/signup", function () {
   })
   .resolve()
 window.router.on("/home", function () {
-        $app.innerHTML = `  <main>
+        $app.innerHTML = ` 
+        <nav-Login></nav-Login>;
+        <main>
         <site-title></site-title>
         <section>
             <div class="blog">
