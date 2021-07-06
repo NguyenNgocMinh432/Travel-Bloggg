@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    <navigation-bar></navigation-bar>
+    <nav-Login></nav-Login>
     <main>
         <site-title></site-title>
     </main>
@@ -72,7 +72,7 @@
 
         <script>
             let containerPost = document.querySelector(".inforBlog--container");
-            const postApi = "https://travel-blog-mindx.herokuapp.com/post_travel/2";
+            const postApi = "https://travel-blog-mindx.herokuapp.com/post_travel/3";
             const getDataPost = async () => {
                 function start() {
                     getPosts(renderPosts);
@@ -101,8 +101,9 @@
         <!-- Custom Javascript file -->
         <script src="../js/home.js"></script>
 
-        <script src="../js/handleCmt/hadleCmt_Travel2.js" type="module"></script>
-
+        <!-- <script src="../js/handleCmt/hadleCmt_Travel3.js" type="module"></script> -->
+        <script src="../handlecmtUser/User_travel3.js" type="module"></script>
+        <script src="../js/components/NavLogin.js"type="module"></script>
 </body>
 
 </html>
