@@ -1,25 +1,24 @@
 import { BaseComponent } from "../BaseComponent.js";
-import {
-    verifyEmail,
-    md5,
-    getDataFromDocs,
-    saveCurrentUser,
-} from "../utils.js";
-// import "../router.js";
-class Login extends BaseComponent {
+// import "./router.js";
+import { verifyEmail, md5 } from "../utils.js";
+class addUser extends BaseComponent {
     constructor() {
         super();
+
         this.state = {
             errors: {
+                name: "",
                 email: "",
                 password: "",
+                repassword: "",
             },
 
             data: {
+                name: "",
                 email: "",
                 password: "",
             },
-        }
+        };
     }
 
     static get observedAttributes() {
@@ -42,14 +41,20 @@ class Login extends BaseComponent {
                         <div class="col-lg-6 mx-auto">
                             <div class="auth">
                                 <div class="auth__title text-center">
-                                    Welcome Back
+                                   ADD USER
                                 </div>
                                 <div class="auth__form">
-                                    <form novalidate id="form-login">
+                                    <form id="form-sign-up" novalidate>
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="email"
                                                 placeholder="Example@gmail.com">
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">User name</label>
+                                            <input type="text" class="form-control" id="username"
+                                                placeholder="Your user name">
                                             <div class="invalid-feedback"></div>
                                         </div>
                                         <div class="mb-3">
@@ -58,13 +63,17 @@ class Login extends BaseComponent {
                                                 placeholder="Enter your password">
                                             <div class="invalid-feedback"></div>
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="repassword" class="form-label">Re password</label>
+                                            <input type="password" class="form-control"
+                                                placeholder="Re enter your password" id="repassword">
+                                            <div class="invalid-feedback"></div>
+                                        </div>
 
                                         <div class="mb-3">
-                                            <button class="btn auth__btn auth__login" type="submit">Login</button>
+                                            <button class="btn auth__btn auth__login">Sign Up</button>
                                         </div>
-                                        <p class="auth__text">
-                                            Don't have an account yet? <a href="./sign-up.html">Sign
-                                                up</a>
+                                        <p class="auth__text">Have an account yet? <a href="./login.html">Login</a>
                                         </p>
                                     </form>
                                 </div>
@@ -74,66 +83,68 @@ class Login extends BaseComponent {
                 </div>
             </div>
         </main>
-    </div>
         `;
         this._shadowRoot.innerHTML = template;
-        this.$formLogin = this._shadowRoot.querySelector("#form-login");
-        this.$formLogin.onsubmit = async (event) => {
+        this.$formRegister = this._shadowRoot.querySelector("#form-sign-up");
+        this.$formRegister.onsubmit = async (event) => {
             event.preventDefault();
+
             // Lấy dữ liệu
+            let name = this._shadowRoot.querySelector("#username").value;
             let email = this._shadowRoot.querySelector("#email").value;
             let password = this._shadowRoot.querySelector("#password").value;
-            // Kiểm tra dữ liệu nhập vào có lỗi thí show ra
-            let isFlash = true;
-            if (email == "") {
+            let repassword = this._shadowRoot.querySelector("#repassword").value;
+            // Kiem tra xem du lieu nhap vào có lỗi thì show ra
 
-                isFlash = false;
-                this.state.errors.email = "Invalid email";
-                alert("Moi bạn nhập email");
+            let isflash = true;
+            if (name == "") {
+                isflash = false;
+                this.state.errors.name = "Input your name";
+                alert("Moi bạn nhập tên người dùng");
+            } else {
+                this.state.errors.name = "";
+                this.state.data.name = name;
             }
-            else {
+            if (email == "" || !verifyEmail(email)) {
+                isflash = false;
+                this.state.errors.email = "Nhập email";
+                alert("Bạn phải nhập email");
+            } else {
                 this.state.errors.email = "";
                 this.state.data.email = email;
             }
             if (password == "") {
-                isFlash = false;
+                isflash = false;
                 this.state.errors.password = "Input your password";
-                alert("Mời bạn nhập password");
+                alert("Bạn phải nhập đc password");
             } else {
                 this.state.errors.password = "";
                 this.state.data.password = password;
             }
-            // Kiem tra dữ liệu người dùng.
-            if (isFlash) {
+            if (repassword == "" || repassword != password) {
+                isflash = false;
+                this.state.errors.repassword = "Your password confirmation is not correct";
+                alert("Mời bạn nhập lại password");
+            } else {
+                this.state.errors.repassword = "";
+            }
+            // Lưu dữ liệu vào firebase
+            if (isflash) {
+                this.state.data.password = md5(this.state.data.password).toString();
                 const response = await firebase.firestore().collection("user1").where("email", "==", email).get();
-                // .where("password", "==", md5(password))
                 console.log(response);
-            //     var admin = await firebase.firestore().collection("user1").get();
-            //     admin.docs.forEach((doc) => {
-            //  if (doc.data().email === "nnminh432@gmail.com") {
-            //         alert("thành công rồi");
-            //         router.navigate("/home");
-            //    } 
-            //     })
-             if (response.empty) {
-                    alert("Tài khoản hoặc mật khẩu không chính xác");
-                }
-                 else {
-                    const currentUser = getDataFromDocs(response.docs)[0];
-                    console.log(currentUser);
-                    // lưu người dùng hiện tại
-                    saveCurrentUser(currentUser);   
-                    // chuyển sang trang index
-                    router.navigate("/home");
+                if (response.empty) {
+                    await firebase.firestore().collection("user1").add(this.state.data);
+                    alert("Bạn đã thêm thành công!");
+                    // router.navigate("/login");
+                } else {
+                    alert("Your email has already been used");
                 }
             }
-            this.setState(this.state);
-        };
-    }
 
-    get id() {
-        return this.getAttribute("id");
+            this.setState(this.state);
+        }
+
     }
 }
-
-window.customElements.define('custom-login', Login);
+window.customElements.define("custom-add", addUser);
